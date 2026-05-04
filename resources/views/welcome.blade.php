@@ -272,9 +272,11 @@
             <p>Este gestor permite administrar de manera ágil, segura y eficiente el inventario de equipos, reactivos y materiales de los laboratorios de la Institución Universitaria Pascual Bravo.</p>
               <nav class="space-x-6 font-semibold">
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="text-black hover:text-gray-300 transition">Dashboard</a>
+                         <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow transition login-btn" >Iniciar sesión</a>
                     @else
-                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow transition login-btn" >Iniciar sesión</a>
+                       <a href="{{ url('/dashboard') }}" class="text-black hover:text-gray-300 transition">Dashboard
+                        
+                        </a>
                     @endauth
                 </nav>
 
