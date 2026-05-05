@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Laboratorios - I.U. Pascual Bravo</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/Logo_1.svg') }}"style="background-color:#fff;">
+    <link rel="icon" type="image/png" href="<?php echo e(asset('images/Logo_1.svg')); ?>"style="background-color:#fff;">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,7 @@
         <header class="sticky top-0 z-50" style="background-color:#fff;">
             <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                <h1 class="flex items-center gap-3 text-2xl font-bold tracking-wide" style="color:#293a52;">
-                    <img src="{{ asset('images/Logo_1.png') }}" alt="Logo" class="h-8 w-8 color-black rounded"    >
+                    <img src="<?php echo e(asset('images/Logo_1.png')); ?>" alt="Logo" class="h-8 w-8 color-black rounded"    >
                     Sistema de inventarios
                 </h1>
 
@@ -271,11 +271,11 @@
             <h2>Gestión de laboratorios</h2>
             <p>Este gestor permite administrar de manera ágil, segura y eficiente el inventario de equipos, reactivos y materiales de los laboratorios de la Institución Universitaria Pascual Bravo.</p>
               <nav class="space-x-6 font-semibold">
-                   @auth
-                        <a href="{{ url('/dashboard') }}" class="login-btn">Dashboard</a>
-                    @else
-                        <a href="{{ route('login') }}" class="login-btn">Iniciar sesión</a>
-                    @endauth
+                   <?php if(auth()->guard()->check()): ?>
+                        <a href="<?php echo e(url('/dashboard')); ?>" class="login-btn">Dashboard</a>
+                    <?php else: ?>
+                        <a href="<?php echo e(route('login')); ?>" class="login-btn">Iniciar sesión</a>
+                    <?php endif; ?>
                 </nav>
 
         </div>
@@ -358,4 +358,4 @@
 
         </main>
 
-        
+        <?php /**PATH C:\Users\Mauricio\sistema_inventario_laboratorio2\resources\views/welcome.blade.php ENDPATH**/ ?>
