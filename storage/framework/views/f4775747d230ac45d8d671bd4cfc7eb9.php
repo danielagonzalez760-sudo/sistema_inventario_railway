@@ -1,6 +1,15 @@
-<x-app-layout>
+<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
+<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
     <div class="max-w-6xl mx-auto sm:px-6 lg:px-8" x-data="{ openModalId: null }">
-        <x-slot name="header">
+         <?php $__env->slot('header', null, []); ?> 
             <div class="flex items-center gap-3 px-2 py-1">
                 <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;">
                     <svg xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
@@ -12,7 +21,7 @@
                     <p style="font-size:11px;color:rgba(255,255,255,0.6);margin:0;">Gestión y seguimiento de reservas del laboratorio</p>
                 </div>
             </div>
-        </x-slot>
+         <?php $__env->endSlot(); ?>
 
         <style>
             .res-page { background:#eef2f9; background-image:radial-gradient(ellipse at 20% 0%,rgba(91,163,245,.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(12,45,107,.07) 0%,transparent 50%); padding:2rem 0 3rem; min-height:100vh; }
@@ -75,20 +84,20 @@
 
         <div class="res-page">
             <div class="section-card">
-                {{-- Search bar --}}
-                <form method="GET" action="{{ route('admin.reservas.index') }}" class="search-bar">
+                
+                <form method="GET" action="<?php echo e(route('admin.reservas.index')); ?>" class="search-bar">
                     <input type="text" name="email" placeholder="Buscar por correo..."
-                        value="{{ request('email') }}" class="search-input" />
+                        value="<?php echo e(request('email')); ?>" class="search-input" />
                     <button type="submit" class="btn btn-primary">
                         <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z"/>
                         </svg>
                         Buscar
                     </button>
-                    <a href="{{ route('admin.reservas.index') }}" class="btn btn-outline">Limpiar</a>
+                    <a href="<?php echo e(route('admin.reservas.index')); ?>" class="btn btn-outline">Limpiar</a>
                 </form>
 
-                {{-- Table --}}
+                
                 <div class="overflow-x-auto">
                     <table class="res-table">
                         <thead>
@@ -101,98 +110,109 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($reservas as $reserva)
+                            <?php $__empty_1 = true; $__currentLoopData = $reservas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $reserva): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                 <tr>
                                     <td>
                                         <div class="user-cell">
-                                            <div class="avatar">{{ strtoupper(substr($reserva->user->email, 0, 1)) }}</div>
-                                            <span class="user-email">{{ $reserva->user->email }}</span>
+                                            <div class="avatar"><?php echo e(strtoupper(substr($reserva->user->email, 0, 1))); ?></div>
+                                            <span class="user-email"><?php echo e($reserva->user->email); ?></span>
                                         </div>
                                     </td>
-                                    <td>{{ $reserva->item->nombre }}</td>
-                                    <td>{{ $reserva->cantidad }}</td>
+                                    <td><?php echo e($reserva->item->nombre); ?></td>
+                                    <td><?php echo e($reserva->cantidad); ?></td>
                                     <td>
                                         <span class="badge
-                                            @if($reserva->estado==='pendiente') badge-pendiente
-                                            @elseif($reserva->estado==='prestado') badge-prestado
-                                            @elseif($reserva->estado==='devuelto') badge-devuelto
-                                            @elseif($reserva->estado==='cancelado') badge-cancelado
-                                            @else badge-default @endif">
-                                            {{ ucfirst($reserva->estado) }}
+                                            <?php if($reserva->estado==='pendiente'): ?> badge-pendiente
+                                            <?php elseif($reserva->estado==='prestado'): ?> badge-prestado
+                                            <?php elseif($reserva->estado==='devuelto'): ?> badge-devuelto
+                                            <?php elseif($reserva->estado==='cancelado'): ?> badge-cancelado
+                                            <?php else: ?> badge-default <?php endif; ?>">
+                                            <?php echo e(ucfirst($reserva->estado)); ?>
+
                                         </span>
                                     </td>
                                     <td class="center">
-                                        @if($reserva->estado === 'cancelado')
+                                        <?php if($reserva->estado === 'cancelado'): ?>
                                             <span class="badge badge-cancelado">Cancelado</span>
-                                        @elseif($reserva->estado === 'devuelto')
+                                        <?php elseif($reserva->estado === 'devuelto'): ?>
                                             <span class="badge badge-devuelto">Devuelto</span>
-                                        @elseif(Auth::user()->roles->contains('name', 'admin'))
-                                            @if($reserva->estado === 'pendiente')
+                                        <?php elseif(Auth::user()->roles->contains('name', 'admin')): ?>
+                                            <?php if($reserva->estado === 'pendiente'): ?>
                                                 <div class="action-row">
-                                                    <form action="{{ route('admin.reservas.aprobar', $reserva) }}" method="POST">
-                                                        @csrf @method('PATCH')
+                                                    <form action="<?php echo e(route('admin.reservas.aprobar', $reserva)); ?>" method="POST">
+                                                        <?php echo csrf_field(); ?> <?php echo method_field('PATCH'); ?>
                                                         <button type="submit" class="btn-approve">✓ Aprobar</button>
                                                     </form>
-                                                    <form action="{{ route('admin.reservas.rechazar', $reserva) }}" method="POST">
-                                                        @csrf @method('PATCH')
+                                                    <form action="<?php echo e(route('admin.reservas.rechazar', $reserva)); ?>" method="POST">
+                                                        <?php echo csrf_field(); ?> <?php echo method_field('PATCH'); ?>
                                                         <button type="submit" class="btn-reject">✕ Rechazar</button>
                                                     </form>
                                                 </div>
-                                            @elseif($reserva->estado === 'prestado')
-                                                <button @click="openModalId = {{ $reserva->id }}" class="btn-return">
+                                            <?php elseif($reserva->estado === 'prestado'): ?>
+                                                <button @click="openModalId = <?php echo e($reserva->id); ?>" class="btn-return">
                                                     ↩ Devolver
                                                 </button>
 
-                                                {{-- Modal devolución --}}
-                                                <div x-show="openModalId === {{ $reserva->id }}" x-cloak class="modal-overlay">
+                                                
+                                                <div x-show="openModalId === <?php echo e($reserva->id); ?>" x-cloak class="modal-overlay">
                                                     <div class="modal-box" @click.stop>
                                                         <div class="modal-header">
                                                             <div class="modal-header-title">Confirmar devolución</div>
                                                         </div>
                                                         <div class="modal-body">
                                                             ¿Marcar como <strong>devuelto</strong> el ítem
-                                                            <strong>{{ $reserva->item->nombre }}</strong>
-                                                            reservado por <strong>{{ $reserva->user->email }}</strong>?
+                                                            <strong><?php echo e($reserva->item->nombre); ?></strong>
+                                                            reservado por <strong><?php echo e($reserva->user->email); ?></strong>?
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button @click="openModalId = null" class="btn btn-outline">Cancelar</button>
-                                                            <form action="{{ route('admin.reservas.devolver', $reserva) }}" method="POST">
-                                                                @csrf @method('PATCH')
+                                                            <form action="<?php echo e(route('admin.reservas.devolver', $reserva)); ?>" method="POST">
+                                                                <?php echo csrf_field(); ?> <?php echo method_field('PATCH'); ?>
                                                                 <button type="submit" class="btn btn-primary">Confirmar</button>
                                                             </form>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @else
+                                            <?php else: ?>
                                                 <span style="font-size:12px;color:#94a3b8;font-style:italic;">Sin acción</span>
-                                            @endif
-                                        @elseif($reserva->user_id === Auth::id() && $reserva->estado === 'pendiente')
-                                            <form action="{{ route('reservas.cancelar', $reserva) }}" method="POST"
+                                            <?php endif; ?>
+                                        <?php elseif($reserva->user_id === Auth::id() && $reserva->estado === 'pendiente'): ?>
+                                            <form action="<?php echo e(route('reservas.cancelar', $reserva)); ?>" method="POST"
                                                 onsubmit="return confirm('¿Deseas cancelar esta reserva?');">
-                                                @csrf @method('PATCH')
+                                                <?php echo csrf_field(); ?> <?php echo method_field('PATCH'); ?>
                                                 <button type="submit" class="btn-cancel-r">✕ Cancelar</button>
                                             </form>
-                                        @else
+                                        <?php else: ?>
                                             <span style="font-size:12px;color:#94a3b8;font-style:italic;">Sin acción</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <tr>
                                     <td colspan="5" style="padding:2.5rem;text-align:center;color:#94a3b8;font-size:13px;font-style:italic;">
                                         No se encontraron reservas.
                                     </td>
                                 </tr>
-                            @endforelse
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
 
-                {{-- Paginación --}}
+                
                 <div class="pagination-wrap">
-                    {{ $reservas->appends(request()->query())->links() }}
+                    <?php echo e($reservas->appends(request()->query())->links()); ?>
+
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?><?php /**PATH C:\Users\Mauricio\Documents\GitHub\sistema_inventario_laboratorio2\resources\views/reservas/index.blade.php ENDPATH**/ ?>

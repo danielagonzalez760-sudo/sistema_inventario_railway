@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\User;
 use App\Models\Reserva;
 use App\Models\Transaccion;
 use Illuminate\Http\Request;
@@ -10,12 +11,13 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\ReservaConfirmada;
 use App\Notifications\ReservaRechazada;
 use App\Notifications\ReservaDevuelta;
+use App\Notifications\ReservaSolicitada;
+use App\Notifications\ReservaNuevaAdmin;
 
 class ReservaController extends Controller
 {
     public function store(Request $request, Item $item)
     {
-        // Validar datos
         $request->validate([
             'fecha_devolucion_prevista' => 'required|date|after_or_equal:today',
             'motivo' => 'required|string|max:255',
@@ -28,14 +30,12 @@ class ReservaController extends Controller
             'motivo.max' => '⚠️ El motivo no puede superar los 255 caracteres.',
         ]);
 
-        // Validar stock
         if ($item->cantidad <= 0) {
             return redirect()->back()->withErrors([
                 'stock' => '❌ No se puede registrar un préstamo: el ítem no está disponible.'
             ])->withInput();
         }
 
-        // Validar si ya tiene una reserva activa
         $existe = Reserva::where('item_id', $item->id)
             ->where('user_id', Auth::id())
             ->whereIn('estado', ['pendiente', 'prestado'])
@@ -45,7 +45,6 @@ class ReservaController extends Controller
             return redirect()->back()->withErrors(['reserva' => '⚠️ Ya tienes una reserva activa de este ítem.']);
         }
 
-        // Crear reserva y guardarla en variable
         $reserva = Reserva::create([
             'item_id' => $item->id,
             'user_id' => Auth::id(),
@@ -56,23 +55,33 @@ class ReservaController extends Controller
             'motivo' => $request->motivo,
         ]);
 
-        // Actualizar stock
         $item->decrement('cantidad', 1);
 
-        // Registrar transacción
         Transaccion::create([
             'item_id' => $item->id,
             'tipo' => 'salida',
             'cantidad' => 1,
             'descripcion' => 'Préstamo por usuario ID ' . Auth::id(),
         ]);
+
+        // Notificar al usuario que su solicitud fue recibida
+        try {
+            $reserva->user->notify(new ReservaSolicitada($reserva));
+        } catch (\Exception $e) {}
+
+        // Notificar a todos los admins que hay una nueva reserva
+        try {
+            $admins = User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new ReservaNuevaAdmin($reserva));
+            }
+        } catch (\Exception $e) {}
+
         return redirect()->back()->with('success', 'Tu solicitud de préstamo fue registrada y está pendiente de aprobación.');
     }
 
-    //Profesor: puede elegir cantidad.
     public function storeDocente(Request $request, Item $item)
     {
-        // Validar datos
         $request->validate([
             'cantidad' => 'required|integer|min:1',
             'fecha_devolucion_prevista' => 'required|date|after_or_equal:today',
@@ -89,12 +98,10 @@ class ReservaController extends Controller
             'motivo.max' => '⚠️ El motivo no puede superar los 255 caracteres.',
         ]);
 
-        // Validar stock
         if ($item->cantidad < $request->cantidad) {
             return redirect()->back()->withErrors(['stock' => '❌ No hay suficiente stock disponible.'])->withInput();
         }
 
-        // Crear reserva y guardarla en variable
         $reserva = Reserva::create([
             'item_id' => $item->id,
             'user_id' => Auth::id(),
@@ -105,20 +112,31 @@ class ReservaController extends Controller
             'motivo' => $request->motivo,
         ]);
 
-        // Actualizar stock
         $item->decrement('cantidad', $request->cantidad);
 
-        // Registrar transacción
         Transaccion::create([
             'item_id' => $item->id,
             'tipo' => 'salida',
             'cantidad' => $request->cantidad,
             'descripcion' => 'Préstamo por usuario ID ' . Auth::id(),
         ]);
+
+        // Notificar al usuario que su solicitud fue recibida
+        try {
+            $reserva->user->notify(new ReservaSolicitada($reserva));
+        } catch (\Exception $e) {}
+
+        // Notificar a todos los admins que hay una nueva reserva
+        try {
+            $admins = User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new ReservaNuevaAdmin($reserva));
+            }
+        } catch (\Exception $e) {}
+
         return redirect()->back()->with('success', 'Tu solicitud de préstamo fue registrada y está pendiente de aprobación.');
     }
 
-    //ver reservas del usuario autenticado (profesor o estudiante)
     public function misReservas(Request $request)
     {
         $user = Auth::user();
@@ -143,7 +161,6 @@ class ReservaController extends Controller
         };
     }
 
-    //Cancelar reserva (solo el dueño)
     public function cancelar(Reserva $reserva)
     {
         if ($reserva->user_id !== Auth::id()) {
@@ -156,17 +173,17 @@ class ReservaController extends Controller
         return redirect()->back()->with('success', '✅ Reserva cancelada correctamente.');
     }
 
-    //Admin: aprobar (marcar como entregada)
     public function aprobar(Reserva $reserva)
     {
         $reserva->update(['estado' => 'prestado']);
 
-        $reserva->user->notify(new \App\Notifications\ReservaConfirmada($reserva));
+        try {
+            $reserva->user->notify(new ReservaConfirmada($reserva));
+        } catch (\Exception $e) {}
 
         return redirect()->back()->with('success', '✅ Reserva marcada como prestada.');
     }
 
-    //Admin: rechazar y restaurar stock
     public function rechazar(Reserva $reserva)
     {
         if ($reserva->estado === 'pendiente') {
@@ -175,19 +192,19 @@ class ReservaController extends Controller
 
         $reserva->update(['estado' => 'cancelado']);
 
-        $reserva->user->notify(new ReservaRechazada($reserva));
+        try {
+            $reserva->user->notify(new ReservaRechazada($reserva));
+        } catch (\Exception $e) {}
 
         return redirect()->back()->with('success', '❌ Reserva cancelada y stock restaurado.');
     }
 
-    //Admin: ver todas las reservas
     public function index(Request $request)
     {
         if (!Auth::user()->hasRole('admin')) {
             abort(403, 'Acceso no autorizado.');
         }
 
-        // Base de la consulta
         $query = Reserva::with(['user', 'item'])->latest();
 
         if ($request->filled('email')) {
@@ -204,6 +221,7 @@ class ReservaController extends Controller
     public function devolver(Reserva $reserva)
     {
         $user = Auth::user();
+
         if ($reserva->user_id !== $user->id && !$user->roles->contains('name', 'admin')) {
             return redirect()->back()->withErrors([
                 'auth' => '❌ No puedes devolver una reserva que no es tuya.'
@@ -215,12 +233,16 @@ class ReservaController extends Controller
                 'estado' => '⚠️ Solo se pueden devolver reservas que ya fueron prestadas.'
             ]);
         }
+
         $reserva->item->increment('cantidad', $reserva->cantidad);
         $reserva->update([
             'estado' => 'devuelto',
             'fecha_devolucion_real' => now(),
         ]);
-        $reserva->user->notify(new ReservaDevuelta($reserva));
+
+        try {
+            $reserva->user->notify(new ReservaDevuelta($reserva));
+        } catch (\Exception $e) {}
 
         return redirect()->back()->with('success', '✅ Reserva devuelta correctamente.');
     }
