@@ -25,7 +25,7 @@
             <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                <h1 class="flex items-center gap-3 text-2xl font-bold tracking-wide" style="color:#293a52;">
                     <img src="{{ asset('images/Logo_1.png') }}" alt="Logo" class="h-8 w-8 color-black rounded"    >
-                    Sistema de inventarios
+                    Sistema IUPB-LABS
                 </h1>
 
               
