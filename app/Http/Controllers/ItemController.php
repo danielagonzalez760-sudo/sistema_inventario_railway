@@ -242,20 +242,25 @@ class ItemController extends Controller
 
     //Método privado para registrar alerta y notificar al admin
     private function crearAlertaYNotificar(Item $item)
-    {
-        // Crear alerta en la BD
-        Alerta::create([
-            'item_id'  => $item->id,
-            'cantidad' => $item->cantidad,
-            'estado'   => 'pendiente',
-        ]);
+        {
+            // Evitar alertas duplicadas
+            $yaExiste = Alerta::where('item_id', $item->id)
+                ->where('estado', 'pendiente')
+                ->exists();
 
-        // Buscar admin
-        $admin = \App\Models\User::where('email', 'alertas.lab.pb@gmail.com')->first();
+            if ($yaExiste) return;
 
-        // Notificar si existe el admin
-        if ($admin) {
-            $admin->notify(new \App\Notifications\StockLowNotification($item->nombre, $item->cantidad));
+            // Crear alerta en la BD
+            Alerta::create([
+                'item_id'  => $item->id,
+                'cantidad' => $item->cantidad,
+                'estado'   => 'pendiente',
+            ]);
+
+            // Notificar al correo del sistema
+            try {
+                \Illuminate\Support\Facades\Notification::route('mail', config('mail.from.address'))
+                    ->notify(new \App\Notifications\StockLowNotification($item->nombre, $item->cantidad));
+            } catch (\Exception $e) {}
         }
-    }
 }
