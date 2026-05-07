@@ -258,9 +258,9 @@ class ItemController extends Controller
             ]);
 
             // Notificar al correo del sistema
-            try {
+            {
                 \Illuminate\Support\Facades\Notification::route('mail', config('mail.from.address'))
                     ->notify(new \App\Notifications\StockLowNotification($item->nombre, $item->cantidad));
-            } catch (\Exception $e) {}
+            } 
         }
 }
