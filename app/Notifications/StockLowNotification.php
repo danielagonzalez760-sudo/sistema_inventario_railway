@@ -23,7 +23,7 @@ class StockLowNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['mail', 'database']; //Email + sistema
+        return ['mail']; //Email + sistema
     }
 
    public function toMail($notifiable)
