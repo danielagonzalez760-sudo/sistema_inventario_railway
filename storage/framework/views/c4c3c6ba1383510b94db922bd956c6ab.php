@@ -20,16 +20,9 @@
 <body>
     <div class="card">
         <h1>⚠️ Alerta de Stock Bajo</h1>
-        <p>El siguiente ítem ha alcanzado o está por debajo del umbral mínimo de stock:</p>
-        <p><strong>Ítem:</strong> <?php echo e($item->nombre); ?></p>
-        <p><strong>Cantidad actual:</strong> <span class="badge"><?php echo e($item->cantidad); ?></span></p>
-        <p><strong>Umbral mínimo:</strong> <?php echo e($item->umbral_minimo); ?></p>
-        <?php if($item->ubicacion): ?>
-        <p><strong>Ubicación:</strong> <?php echo e($item->ubicacion); ?></p>
-        <?php endif; ?>
-        <?php if($item->proveedor): ?>
-        <p><strong>Proveedor:</strong> <?php echo e($item->proveedor); ?></p>
-        <?php endif; ?>
+        <p>El siguiente ítem ha alcanzado o está por debajo del umbral mínimo:</p>
+        <p><strong>Ítem:</strong> <?php echo e($item); ?></p>
+        <p><strong>Cantidad actual:</strong> <span class="badge"><?php echo e($cantidad); ?></span></p>
         <p>Por favor ingresa al sistema para reabastecer el inventario.</p>
     </div>
     <div class="footer">

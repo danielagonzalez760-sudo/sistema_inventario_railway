@@ -26,13 +26,14 @@ class StockLowNotification extends Notification
         return ['mail', 'database']; //Email + sistema
     }
 
-    public function toMail($notifiable)
+   public function toMail($notifiable)
     {
-        return (new \Illuminate\Notifications\Messages\MailMessage)
-            ->subject('⚠️ Alerta de Stock Bajo - ' . $this->item)
-            ->view('emails.stock_bajo', [
-                'item' => (object)['nombre' => $this->item, 'cantidad' => $this->cantidad]
-            ]);
+            return (new \Illuminate\Notifications\Messages\MailMessage)
+                ->subject('⚠️ Alerta de Stock Bajo - ' . $this->item)
+                ->view('emails.stock_bajo', [
+                    'item'     => $this->item,
+                    'cantidad' => $this->cantidad,
+                ]);
     }
 
     public function toDatabase($notifiable)
