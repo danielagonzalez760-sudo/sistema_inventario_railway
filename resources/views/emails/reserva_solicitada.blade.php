@@ -29,7 +29,7 @@
         <p>Ingresa al sistema para aprobar o rechazar la solicitud.</p>
     </div>
     <div class="footer">
-        📌 Sistema de Inventario - Universidad Pascual Bravo
+        📌 IUPB-LABS - Universidad Pascual Bravo
     </div>
 </body>
 </html>
