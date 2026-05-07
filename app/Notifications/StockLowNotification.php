@@ -30,7 +30,7 @@ class StockLowNotification extends Notification
     {
         return (new \Illuminate\Notifications\Messages\MailMessage)
             ->subject('⚠️ Alerta de Stock Bajo - ' . $this->item)
-            ->view('emails.stock_low.blade', [
+            ->view('emails.stock_bajo', [
                 'item' => (object)['nombre' => $this->item, 'cantidad' => $this->cantidad]
             ]);
     }
