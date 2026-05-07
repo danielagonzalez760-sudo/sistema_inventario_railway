@@ -29,7 +29,7 @@ class StockLowNotification extends Notification
     public function toMail($notifiable)
     {
         return (new StockLowMail($this->item, $this->cantidad))
-            ->to('alertas.lab.pb@gmail.com');
+            ->to('sislabpascualbravo@gmail.com');
     }
 
     public function toDatabase($notifiable)
