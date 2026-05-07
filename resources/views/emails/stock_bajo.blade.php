@@ -26,7 +26,7 @@
         <p>Por favor ingresa al sistema para reabastecer el inventario.</p>
     </div>
     <div class="footer">
-        📌 Sistema de Inventario - Universidad Pascual Bravo
+        📌 LABS-IUPB - Universidad Pascual Bravo
     </div>
 </body>
 </html>
