@@ -10,20 +10,17 @@ use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
-    // Mostrar lista completa de ítems (para admins).
     public function index()
     {
         $items = Item::with('transacciones')->get();
         return view('items.index', compact('items'));
     }
 
-    // Mostrar formulario para crear un nuevo ítem (admin).
     public function create()
     {
         return view('items.create');
     }
 
-    // Almacenar un nuevo ítem y registrar transacción inicial (admin).
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -39,7 +36,6 @@ class ItemController extends Controller
 
         $item = Item::create($validated);
 
-        // Registrar transacción inicial
         Transaccion::create([
             'item_id'     => $item->id,
             'tipo'        => 'entrada',
@@ -47,7 +43,6 @@ class ItemController extends Controller
             'descripcion' => 'Registro inicial de stock',
         ]);
 
-        // Registrar alerta si ya inicia bajo el umbral
         if ($item->cantidad <= $item->umbral_minimo) {
             $this->crearAlertaYNotificar($item);
         }
@@ -55,33 +50,30 @@ class ItemController extends Controller
         return redirect()->route('items.index')->with('success', 'Ítem creado correctamente.');
     }
 
-    // Mostrar detalles de un ítem (admin).
     public function show(Item $item)
     {
-            $transacciones = $item->transacciones()
-                ->with('user')
-                ->orderByDesc('created_at')
-                ->paginate(10, ['*'], 'transacciones_page');
+        $transacciones = $item->transacciones()
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->paginate(10, ['*'], 'transacciones_page');
 
-            $reservas = $item->reservas()
-                 ->with('user')
-                 ->orderByDesc('created_at')
-                 ->paginate(10, ['*'], 'reservas_page');
+        $reservas = $item->reservas()
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->paginate(10, ['*'], 'reservas_page');
 
-            $alertas = $item->alertas()
-                ->orderByDesc('created_at')
-                ->paginate(10, ['*'], 'alertas_page');
+        $alertas = $item->alertas()
+            ->orderByDesc('created_at')
+            ->paginate(10, ['*'], 'alertas_page');
 
         return view('items.show', compact('item', 'transacciones', 'reservas', 'alertas'));
     }
 
-    // Mostrar formulario para editar un ítem (admin).
     public function edit(Item $item)
     {
         return view('items.edit', compact('item'));
     }
 
-    // Actualizar un ítem existente y registrar cambios de stock (admin).
     public function update(Request $request, Item $item)
     {
         $validated = $request->validate([
@@ -95,7 +87,6 @@ class ItemController extends Controller
             'umbral_minimo'     => 'required|integer|min:0',
         ]);
 
-        // Registrar transacción si cambió la cantidad
         if ($validated['cantidad'] != $item->cantidad) {
             $tipo = $validated['cantidad'] > $item->cantidad ? 'entrada' : 'salida';
             $cantidadCambio = abs($validated['cantidad'] - $item->cantidad);
@@ -110,32 +101,24 @@ class ItemController extends Controller
 
         $item->update($validated);
 
-        // Registrar alerta si está bajo el umbral
         if ($item->cantidad <= $item->umbral_minimo) {
             $this->crearAlertaYNotificar($item);
         } else {
-            // Si subió stock, cerrar alertas pendientes
-            Alerta::where('item_id', $item->id)
-                ->where('estado', 'pendiente')
-                ->update(['estado' => 'atendida']);
+            $this->cerrarAlertasYNotificarReabastecido($item);
         }
 
         return redirect()->route('items.index')->with('success', 'Ítem actualizado correctamente.');
     }
 
-    // Eliminar un ítem del inventario (admin).
     public function destroy(Item $item)
     {
         $item->delete();
         return redirect()->route('items.index')->with('success', 'Ítem eliminado correctamente.');
     }
 
-    // Mostrar dashboard del administrador con ítems de bajo stock.
     public function adminDashboard()
     {
         $items = Item::whereColumn('cantidad', '<=', 'umbral_minimo')->get();
-
-        // Datos adicionales para enriquecer el dashboard
         $totalItems = Item::count();
         $lowStockCount = Item::whereColumn('cantidad', '<=', 'umbral_minimo')->count();
         $reservasPendientes = Reserva::where('estado', 'pendiente')->count();
@@ -150,27 +133,23 @@ class ItemController extends Controller
         ));
     }
 
-    // Vista para estudiantes: muestra ítems disponibles.
     public function studentIndex()
     {
         $items = Item::where('cantidad', '>', 0)->get();
         return view('items.student_index', compact('items'));
     }
 
-    // Vista para docentes: muestra ítems disponibles.
     public function docenteIndex()
     {
         $items = Item::all();
         return view('items.docente_index', compact('items'));
     }
 
-    // Mostrar formulario para actualizar stock (entrada/salida)
     public function editStock(Item $item)
     {
         return view('items.update_stock', compact('item'));
     }
 
-    // Actualizar cantidad de stock (entradas o salidas) y registrar transacción.
     public function updateStock(Request $request, Item $item)
     {
         $validated = $request->validate([
@@ -183,14 +162,12 @@ class ItemController extends Controller
             return redirect()->back()->withErrors(['cantidad' => 'No hay suficiente stock disponible.']);
         }
 
-        // Actualizar cantidad
-        $item->cantidad += $validated['tipo'] === 'entrada' 
-            ? $validated['cantidad'] 
+        $item->cantidad += $validated['tipo'] === 'entrada'
+            ? $validated['cantidad']
             : -$validated['cantidad'];
 
         $item->save();
 
-        // Registrar transacción
         Transaccion::create([
             'item_id'     => $item->id,
             'tipo'        => $validated['tipo'],
@@ -198,20 +175,15 @@ class ItemController extends Controller
             'descripcion' => $validated['descripcion'] ?? ($validated['tipo'] === 'entrada' ? 'Entrada de stock' : 'Salida de stock'),
         ]);
 
-        // Registrar alerta si stock <= umbral
         if ($item->cantidad <= $item->umbral_minimo) {
             $this->crearAlertaYNotificar($item);
         } else {
-            //Si subió el stock, marcar las alertas pendientes como atendidas
-            Alerta::where('item_id', $item->id)
-                ->where('estado', 'pendiente')
-                ->update(['estado' => 'atendida']);
+            $this->cerrarAlertasYNotificarReabastecido($item);
         }
 
         return redirect()->route('items.show', $item)->with('success', '✅ Stock actualizado correctamente.');
     }
 
-    // Reservar un ítem (estudiantes/docentes)
     public function reservar(Request $request, $id)
     {
         $item = Item::findOrFail($id);
@@ -220,11 +192,9 @@ class ItemController extends Controller
             return redirect()->back()->with('error', 'No hay stock disponible para reservar.');
         }
 
-        // Reducir stock
         $item->cantidad -= 1;
         $item->save();
 
-        // Registrar transacción de salida (tipo reserva)
         Transaccion::create([
             'item_id'     => $item->id,
             'tipo'        => 'reserva',
@@ -232,7 +202,6 @@ class ItemController extends Controller
             'descripcion' => 'Reserva realizada por usuario',
         ]);
 
-        // Registrar alerta si stock llega al umbral
         if ($item->cantidad <= $item->umbral_minimo) {
             $this->crearAlertaYNotificar($item);
         }
@@ -240,27 +209,41 @@ class ItemController extends Controller
         return redirect()->back()->with('success', 'Reserva realizada correctamente.');
     }
 
-    //Método privado para registrar alerta y notificar al admin
     private function crearAlertaYNotificar(Item $item)
-        {
-            // Evitar alertas duplicadas
-            $yaExiste = Alerta::where('item_id', $item->id)
-                ->where('estado', 'pendiente')
-                ->exists();
+    {
+        $yaExiste = Alerta::where('item_id', $item->id)
+            ->where('estado', 'pendiente')
+            ->exists();
 
-            if ($yaExiste) return;
+        if ($yaExiste) return;
 
-            // Crear alerta en la BD
-            Alerta::create([
-                'item_id'  => $item->id,
-                'cantidad' => $item->cantidad,
-                'estado'   => 'pendiente',
-            ]);
+        Alerta::create([
+            'item_id'  => $item->id,
+            'cantidad' => $item->cantidad,
+            'estado'   => 'pendiente',
+        ]);
 
-            // Notificar al correo del sistema
-            {
-                \Illuminate\Support\Facades\Notification::route('mail', config('mail.from.address'))
-                    ->notify(new \App\Notifications\StockLowNotification($item->nombre, $item->cantidad));
-            } 
-        }
+        try {
+            \Illuminate\Support\Facades\Notification::route('mail', config('mail.from.address'))
+                ->notify(new \App\Notifications\StockLowNotification($item->nombre, $item->cantidad));
+        } catch (\Exception $e) {}
+    }
+
+    private function cerrarAlertasYNotificarReabastecido(Item $item)
+    {
+        $alertasPendientes = Alerta::where('item_id', $item->id)
+            ->where('estado', 'pendiente')
+            ->exists();
+
+        if (!$alertasPendientes) return;
+
+        Alerta::where('item_id', $item->id)
+            ->where('estado', 'pendiente')
+            ->update(['estado' => 'atendida']);
+
+        try {
+            \Illuminate\Support\Facades\Notification::route('mail', config('mail.from.address'))
+                ->notify(new \App\Notifications\StockReabastecido($item->nombre, $item->cantidad));
+        } catch (\Exception $e) {}
+    }
 }
