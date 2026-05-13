@@ -26,7 +26,7 @@
         <p>Por favor ingresa al sistema para reabastecer el inventario.</p>
     </div>
     <div class="footer">
-        📌 Sistema de Inventario - Universidad Pascual Bravo
+        📌 LABS-IUPB - Universidad Pascual Bravo
     </div>
 </body>
 </html><?php /**PATH C:\Users\Mauricio\Documents\GitHub\sistema_inventario_laboratorio2\resources\views/emails/stock_bajo.blade.php ENDPATH**/ ?>
