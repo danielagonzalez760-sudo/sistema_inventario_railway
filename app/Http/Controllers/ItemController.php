@@ -224,9 +224,11 @@ class ItemController extends Controller
         ]);
 
         try {
-            \Illuminate\Support\Facades\Notification::route('mail', config('mail.from.address'))
-                ->notify(new \App\Notifications\StockLowNotification($item->nombre, $item->cantidad));
-        } catch (\Exception $e) {}
+                $admins = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new \App\Notifications\StockLowNotification($item->nombre, $item->cantidad));
+                }
+            } catch (\Exception $e) {}
     }
 
     private function cerrarAlertasYNotificarReabastecido(Item $item)
@@ -242,8 +244,10 @@ class ItemController extends Controller
             ->update(['estado' => 'atendida']);
 
         try {
-            \Illuminate\Support\Facades\Notification::route('mail', config('mail.from.address'))
-                ->notify(new \App\Notifications\StockReabastecido($item->nombre, $item->cantidad));
-        } catch (\Exception $e) {}
+                $admins = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new \App\Notifications\StockReabastecido($item->nombre, $item->cantidad));
+                }
+            } catch (\Exception $e) {}
     }
 }

@@ -132,7 +132,7 @@
                         <div class="section-dot dot-blue"></div>
                         <span class="section-title">Últimas reservas</span>
                     </div>
-                    <a href="{{ route('items.index') }}" class="btn btn-outline">Ver todas</a>
+                    <a href="{{ route('admin.reservas.index') }}" class="btn btn-outline">Ver todas</a>
                 </div>
                 <div class="table-wrap">
                     <table class="dash-table">
