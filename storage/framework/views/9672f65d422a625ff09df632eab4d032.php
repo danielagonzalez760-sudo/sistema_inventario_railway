@@ -26,7 +26,7 @@
         <p>No se requiere ninguna acción adicional.</p>
     </div>
     <div class="footer">
-        📌 Sistema de Inventario - Universidad Pascual Bravo
+        📌 LABS-IUPB - Universidad Pascual Bravo
     </div>
 </body>
 </html><?php /**PATH C:\Users\Mauricio\Documents\GitHub\sistema_inventario_laboratorio2\resources\views/emails/stock_reabastecido.blade.php ENDPATH**/ ?>
