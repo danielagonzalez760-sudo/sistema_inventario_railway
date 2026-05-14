@@ -29,7 +29,7 @@
         <p>Ingresa al sistema para aprobar o rechazar la solicitud.</p>
     </div>
     <div class="footer">
-        📌 Sistema de Inventario - Universidad Pascual Bravo
+        📌 IUPB-LABS - Universidad Pascual Bravo
     </div>
 </body>
 </html><?php /**PATH C:\Users\Mauricio\Documents\GitHub\sistema_inventario_laboratorio2\resources\views/emails/reserva_solicitada.blade.php ENDPATH**/ ?>

@@ -139,26 +139,38 @@ class ReservaController extends Controller
 
     public function misReservas(Request $request)
     {
-        $user = Auth::user();
-        $rolActivo = session('selected_role');
+    $user = Auth::user()->load('roles');
+    $rolActivo = session('selected_role');
 
-        $reservas = Reserva::with('item')
-            ->where('user_id', $user->id)
-            ->when($request->filled('buscar'), function ($query) use ($request) {
-                $query->whereHas('item', function ($q) use ($request) {
-                    $q->where('nombre', 'like', '%' . $request->buscar . '%');
-                });
-            })
-            ->when($request->filled('estado'), function ($query) use ($request) {
-                $query->where('estado', $request->estado);
-            })
-            ->get();
+    // Si la sesión se perdió, detectar el rol desde la BD
+    if (!$rolActivo) {
+        if ($user->roles->contains('name', 'estudiante')) {
+            $rolActivo = 'estudiante';
+        } elseif ($user->roles->contains('name', 'profesor')) {
+            $rolActivo = 'profesor';
+        } elseif ($user->roles->contains('name', 'admin')) {
+            $rolActivo = 'admin';
+        }
+    }
 
-        return match ($rolActivo) {
-            'profesor'   => view('profesor.dashboard', compact('reservas')),
-            'estudiante' => view('estudiante.dashboard', compact('reservas')),
-            default      => abort(403, 'No tienes un rol activo.'),
-        };
+    $reservas = Reserva::with('item')
+        ->where('user_id', $user->id)
+        ->when($request->filled('buscar'), function ($query) use ($request) {
+            $query->whereHas('item', function ($q) use ($request) {
+                $q->where('nombre', 'like', '%' . $request->buscar . '%');
+            });
+        })
+        ->when($request->filled('estado'), function ($query) use ($request) {
+            $query->where('estado', $request->estado);
+        })
+        ->get();
+
+            return match ($rolActivo) {
+                'profesor'   => view('profesor.dashboard', compact('reservas')),
+                'estudiante' => view('estudiante.dashboard', compact('reservas')),
+                'admin'      => view('estudiante.dashboard', compact('reservas')),
+                default      => abort(403, 'No tienes un rol activo.'),
+            };
     }
 
     public function cancelar(Reserva $reserva)
