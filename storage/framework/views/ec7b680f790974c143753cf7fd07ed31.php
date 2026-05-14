@@ -9,203 +9,161 @@
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
      <?php $__env->slot('header', null, []); ?> 
-        <div class="bg-blue-100 dark:bg-blue-900 rounded-lg p-3 flex items-center gap-3 shadow-md">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-700 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L15 12 9.75 7v10z" />
-            </svg>
-            <h2 class="font-bold text-xl text-blue-800 dark:text-blue-300">
-                Ítems disponibles 🎓 (Estudiante)
-            </h2>
+        <div class="flex items-center gap-3 px-2 py-1">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
+                </svg>
+            </div>
+            <div>
+                <h2 style="font-size:15px;font-weight:600;color:#fff;margin:0;">Ítems Disponibles</h2>
+                <p style="font-size:11px;color:rgba(255,255,255,0.6);margin:0;">Selecciona un ítem para realizar tu solicitud de préstamo</p>
+            </div>
         </div>
      <?php $__env->endSlot(); ?>
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <?php if($errors->any()): ?>
-                <div id="modal-errors" class="p-3 bg-red-600 text-white rounded shadow">
-                    <ul class="list-disc pl-5">
-                        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <li><?php echo e($error); ?></li>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
+    <style>
+        .est-items-page { background:#eef2f9; background-image:radial-gradient(ellipse at 20% 0%,rgba(91,163,245,.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(12,45,107,.07) 0%,transparent 50%); padding:2rem 0 3rem; min-height:100vh; }
+
+        .flash-success { background:#eaf3de; border:0.5px solid #7ec843; color:#3b6d11; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:500; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+        .flash-error   { background:#fcebeb; border:0.5px solid #f7c1c1; color:#a32d2d; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:500; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+
+        /* Grid de cards */
+        .items-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+
+        /* Item card */
+        .item-card { background:#fff; border-radius:12px; border:0.5px solid #d8e2ef; overflow:hidden; transition:box-shadow .2s, transform .2s; }
+        .item-card:hover { box-shadow:0 8px 24px rgba(12,45,107,.1); transform:translateY(-2px); }
+
+        /* Barra top por categoría */
+        .card-bar { height:4px; width:100%; }
+        .bar-equipos   { background:linear-gradient(90deg,#185fa5,#5ba3f5); }
+        .bar-reactivos { background:linear-gradient(90deg,#3b6d11,#7ec843); }
+        .bar-materiales{ background:linear-gradient(90deg,#854f0b,#f5a623); }
+        .bar-default   { background:linear-gradient(90deg,#6b7fa3,#94a3b8); }
+
+        .card-head { padding:14px 16px 10px; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+        .card-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+        .ci-equipos   { background:#e6f1fb; }
+        .ci-reactivos { background:#eaf3de; }
+        .ci-materiales{ background:#faeeda; }
+        .ci-default   { background:#f0f4f9; }
+        .card-name { font-size:15px; font-weight:700; color:#0c2d6b; line-height:1.2; }
+        .cat-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; flex-shrink:0; }
+        .cat-equipos   { background:#e6f1fb; color:#185fa5; }
+        .cat-reactivos { background:#eaf3de; color:#3b6d11; }
+        .cat-materiales{ background:#faeeda; color:#854f0b; }
+        .cat-default   { background:#f0f4f9; color:#6b7fa3; }
+
+        .card-info { padding:0 16px 12px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .info-item { background:#f8fafd; border-radius:7px; padding:7px 10px; }
+        .info-label { font-size:10px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px; }
+        .info-value { font-size:13px; color:#2d4a7a; font-weight:500; }
+        .stock-value { font-size:20px; font-weight:700; color:#0c2d6b; }
+
+        /* Formulario de reserva */
+        .card-form { padding:12px 16px 14px; border-top:0.5px solid #f0f4f9; }
+        .form-label { font-size:11px; font-weight:600; color:#6b7fa3; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; display:block; }
+        .form-input { width:100%; border:0.5px solid #d8e2ef; border-radius:7px; padding:8px 12px; font-size:13px; color:#2d4a7a; background:#f8fafd; outline:none; transition:border .15s; margin-bottom:8px; box-sizing:border-box; }
+        .form-input:focus { border-color:#185fa5; background:#fff; }
+        .form-textarea { width:100%; border:0.5px solid #d8e2ef; border-radius:7px; padding:8px 12px; font-size:13px; color:#2d4a7a; background:#f8fafd; outline:none; transition:border .15s; resize:vertical; min-height:70px; box-sizing:border-box; margin-bottom:10px; }
+        .form-textarea:focus { border-color:#185fa5; background:#fff; }
+        .form-textarea::placeholder, .form-input::placeholder { color:#94a3b8; }
+
+        .btn-reservar { width:100%; background:linear-gradient(135deg,#0c2d6b,#1a4a9e); color:#fff; border:none; border-radius:8px; padding:10px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:opacity .15s; box-shadow:0 4px 12px rgba(12,45,107,.2); }
+        .btn-reservar:hover { opacity:.88; }
+
+        .empty-state { background:#fff; border-radius:12px; border:0.5px solid #d8e2ef; padding:4rem; text-align:center; color:#94a3b8; font-size:13px; }
+
+        .page-title { font-size:13px; font-weight:600; color:#6b7fa3; margin-bottom:1.5rem; }
+
+        <?php if($errors->any()): ?>
+        .error-list { background:#fcebeb; border:0.5px solid #f7c1c1; color:#a32d2d; padding:10px 16px; border-radius:8px; font-size:13px; margin-bottom:1rem; }
+        <?php endif; ?>
+    </style>
+
+    <div class="est-items-page">
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
 
             <?php if(session('success')): ?>
-                <div class="p-3 bg-green-600 text-white rounded shadow">
-                    ✅ <?php echo e(session('success')); ?>
-
-                </div>
+                <div class="flash-success">✅ <?php echo e(session('success')); ?></div>
             <?php endif; ?>
-
             <?php if(session('error')): ?>
-                <div class="p-3 bg-red-600 text-white rounded shadow">
-                    ❌ <?php echo e(session('error')); ?>
-
+                <div class="flash-error">❌ <?php echo e(session('error')); ?></div>
+            <?php endif; ?>
+            <?php if($errors->any()): ?>
+                <div class="error-list">
+                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div>⚠️ <?php echo e($error); ?></div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             <?php endif; ?>
 
-            <div class="bg-[#293a52] shadow-md sm:rounded-lg p-6">
-                <h3 class="text-lg font-bold mb-4 text-white">📦 Inventario</h3>
+            <div class="page-title"><?php echo e($items->count()); ?> ítem<?php echo e($items->count() !== 1 ? 's' : ''); ?> disponibles</div>
 
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-600">
-                        <thead>
-                            <tr class="bg-[#1f2a3a]">
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-200 uppercase">Nombre</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-200 uppercase">Categoria</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-200 uppercase">Cantidad</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-200 uppercase">Ubicación</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-200 uppercase">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-700">
-                            <?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <tr class="hover:bg-[#36455e] transition">
-                                    <td class="px-6 py-4 text-sm text-gray-100"><?php echo e($item->nombre); ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-100">
-                                        <?php
-                                            $colores = [
-                                                'Equipos' => 'bg-indigo-500',
-                                                'Reactivos' => 'bg-green-500',
-                                                'Materiales' => 'bg-yellow-500',
-                                            ];
-                                        ?>
-                                        <span class="px-2 py-1 rounded text-white text-xs font-semibold <?php echo e($colores[$item->categoria] ?? 'bg-gray-500'); ?>">
-                                            <?php echo e(ucfirst($item->categoria)); ?>
-
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-100"><?php echo e($item->cantidad); ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-100"><?php echo e($item->ubicacion); ?></td>
-                                    <td class="px-6 py-4 text-sm text-center">
-                                        <?php if($item->cantidad > 0): ?>
-                                            <button
-                                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded shadow open-modal-btn"
-                                                data-item-id="<?php echo e($item->id); ?>"
-                                                data-item-stock="<?php echo e($item->cantidad); ?>"
-                                            >
-                                                Reservar
-                                            </button>
-                                        <?php else: ?>
-                                            <button
-                                                class="bg-gray-500 text-white px-3 py-1 rounded cursor-not-allowed"
-                                                disabled
-                                            >
-                                                Sin stock
-                                            </button>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </tbody>
-                    </table>
+            <?php if($items->isEmpty()): ?>
+                <div class="empty-state">
+                    <div style="font-size:36px;margin-bottom:12px;">📦</div>
+                    No hay ítems disponibles en este momento.
                 </div>
-            </div>
+            <?php else: ?>
+                <div class="items-grid">
+                    <?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
+                            $cat = strtolower($item->categoria);
+                            $icons = ['equipos'=>'🔧','reactivos'=>'🧪','materiales'=>'📦'];
+                            $icon = $icons[$cat] ?? '📋';
+                        ?>
+                        <div class="item-card">
+                            <div class="card-bar bar-<?php echo e($cat); ?> <?php echo e(!in_array($cat,['equipos','reactivos','materiales']) ? 'bar-default' : ''); ?>"></div>
 
-            <!-- Modal -->
-            <div id="reservation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-                <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative animate-fadeIn">
-                    <div class="flex items-center gap-3 border-b pb-3 mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <h2 class="text-2xl font-bold text-gray-800">Registrar Préstamo</h2>
-                    </div>
+                            <div class="card-head">
+                                <div style="display:flex;gap:10px;align-items:flex-start;flex:1;min-width:0;">
+                                    <div class="card-icon ci-<?php echo e($cat); ?>"><?php echo e($icon); ?></div>
+                                    <div style="min-width:0;">
+                                        <div class="card-name"><?php echo e($item->nombre); ?></div>
+                                    </div>
+                                </div>
+                                <span class="cat-badge cat-<?php echo e($cat); ?>"><?php echo e($item->categoria); ?></span>
+                            </div>
 
-                    <form id="reservation-form" method="POST" action="" class="space-y-4">
-                        <?php echo csrf_field(); ?>
-                        
-                        <div>
-                            <label for="usuario" class="block text-sm font-semibold text-gray-700">👤 Usuario</label>
-                            <input type="text" id="usuario" name="usuario" readonly 
-                                class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <div class="card-info">
+                                <div class="info-item">
+                                    <div class="info-label">Disponibles</div>
+                                    <div class="stock-value"><?php echo e($item->cantidad); ?></div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Ubicación</div>
+                                    <div class="info-value"><?php echo e($item->ubicacion ?? '—'); ?></div>
+                                </div>
+                            </div>
+
+                            <div class="card-form">
+                                <form action="<?php echo e(route('reservas.store', $item->id)); ?>" method="POST">
+                                    <?php echo csrf_field(); ?>
+                                    <label class="form-label">Fecha de devolución</label>
+                                    <input type="date" name="fecha_devolucion_prevista" required class="form-input"
+                                    min="<?php echo e(date('Y-m-d')); ?>"
+                                    max="<?php echo e(date('Y-m-d', strtotime('+1 day'))); ?>"/>
+
+                                    <label class="form-label">Motivo del préstamo</label>
+                                    <textarea name="motivo" required class="form-textarea"
+                                        placeholder="Describe el motivo de tu solicitud..."></textarea>
+
+                                    <button type="submit" class="btn-reservar">
+                                        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        Solicitar préstamo
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-
-                        <div>
-                            <label for="fecha_prestamo" class="block text-sm font-semibold text-gray-700">📅 Fecha de préstamo</label>
-                            <input type="text" id="fecha_prestamo" name="fecha_prestamo" readonly 
-                                class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        </div>
-
-                        <div>
-                            <label for="fecha_devolucion_prevista" class="block text-sm font-semibold text-gray-700">📆 Fecha de devolución prevista</label>
-                            <input type="date" id="fecha_devolucion_prevista" name="fecha_devolucion_prevista" required 
-                                class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        </div>
-
-                        <div>
-                            <label for="motivo" class="block text-sm font-semibold text-gray-700">📝 Motivo</label>
-                            <textarea id="motivo" name="motivo" rows="3" required 
-                                    class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
-                        </div>
-
-                        <div class="flex justify-end gap-3 pt-3 border-t">
-                            <button type="button" id="close-modal" 
-                                    class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium transition">
-                                Cancelar
-                            </button>
-                            <button type="submit" 
-                                    class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md transition">
-                                Confirmar
-                            </button>
-                        </div>
-                    </form>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const modal = document.getElementById('reservation-modal');
-            const closeModalBtn = document.getElementById('close-modal');
-            const form = document.getElementById('reservation-form');
-            const usuarioInput = document.getElementById('usuario');
-            const fechaPrestamoInput = document.getElementById('fecha_prestamo');
-            const fechaDevolucionInput = document.getElementById('fecha_devolucion_prevista');
-
-            const usuarioNombre = <?php echo json_encode(auth()->user()->name, 15, 512) ?>;
-
-            function formatearFecha(date) {
-                return date.toISOString().split("T")[0];
-            }
-
-            document.querySelectorAll('.open-modal-btn').forEach(button => {
-                button.addEventListener('click', function () {
-                    const itemId = this.getAttribute('data-item-id');
-
-                    modal.classList.remove('hidden');
-                    form.action = `/items/${itemId}/reservar`;
-                    usuarioInput.value = usuarioNombre;
-
-                    const hoy = new Date();
-                    const hoyStr = formatearFecha(hoy);
-                    fechaPrestamoInput.value = hoyStr;
-
-                    const maxFecha = new Date(hoy);
-                    maxFecha.setDate(maxFecha.getDate() + 3);
-                    const maxStr = formatearFecha(maxFecha);
-
-                    fechaDevolucionInput.min = hoyStr;
-                    fechaDevolucionInput.max = maxStr;
-                    fechaDevolucionInput.value = hoyStr;
-
-                    form.motivo.value = '';
-                });
-            });
-
-            closeModalBtn.addEventListener('click', () => {
-                modal.classList.add('hidden');
-            });
-
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
-        });
-    </script>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
@@ -215,5 +173,4 @@
 <?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
 <?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
 <?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
-<?php endif; ?>
-<?php /**PATH C:\Users\Mauricio\Documents\GitHub\sistema_inventario_laboratorio2\resources\views/reservas/estudiante.blade.php ENDPATH**/ ?>
+<?php endif; ?><?php /**PATH C:\Users\Mauricio\Documents\GitHub\sistema_inventario_laboratorio2\resources\views/reservas/estudiante.blade.php ENDPATH**/ ?>
