@@ -68,7 +68,7 @@ class ReservaController extends Controller
         try {
             $reserva->user->notify(new ReservaSolicitada($reserva));
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['mail' => 'Error al enviar correo al usuario: ' . $e->getMessage()]);
+            return redirect()->back()->with('error', 'Error al enviar correo al usuario: ' . $e->getMessage());
         }
 
         // Notificar a todos los admins que hay una nueva reserva
@@ -78,7 +78,7 @@ class ReservaController extends Controller
                 $admin->notify(new ReservaNuevaAdmin($reserva));
             }
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['mail' => 'Error al enviar correo al admin: ' . $e->getMessage()]);
+            return redirect()->back()->with('error', 'Error al enviar correo al admin: ' . $e->getMessage());
         }
 
         return redirect()->back()->with('success', 'Tu solicitud de préstamo fue registrada y está pendiente de aprobación.');
@@ -129,7 +129,7 @@ class ReservaController extends Controller
         try {
             $reserva->user->notify(new ReservaSolicitada($reserva));
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['mail' => 'Error al enviar correo al usuario: ' . $e->getMessage()]);
+            return redirect()->back()->with('error', 'Error al enviar correo al usuario: ' . $e->getMessage());
         }
 
         // Notificar a todos los admins que hay una nueva reserva
@@ -139,7 +139,7 @@ class ReservaController extends Controller
                 $admin->notify(new ReservaNuevaAdmin($reserva));
             }
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['mail' => 'Error al enviar correo al admin: ' . $e->getMessage()]);
+            return redirect()->back()->with('error', 'Error al enviar correo al admin: ' . $e->getMessage());
         }
 
         return redirect()->back()->with('success', 'Tu solicitud de préstamo fue registrada y está pendiente de aprobación.');
