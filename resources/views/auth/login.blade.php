@@ -39,11 +39,7 @@
                     Recuérdame
                 </label>
 
-                @if (Route::has('password.request'))
-                    <a class="text-[#013549] hover:underline transition" href="{{ route('password.request') }}">
-                        ¿Olvidaste tu contraseña?
-                    </a>
-                @endif
+
             </div>
 
             <div>
