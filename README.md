@@ -1,61 +1,104 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Inventario Laboratorio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este proyecto es un sistema de gestión de inventario para el laboratorio, desarrollado con **Laravel 11**, **Tailwind CSS**, y **PostgreSQL**.
 
-## About Laravel
+## Requisitos Previos
+Para poder descargar y ejecutar este proyecto en tu computadora, necesitas tener instalado:
+- [PHP](https://www.php.net/downloads.php) (Versión 8.2 o superior)
+- [Composer](https://getcomposer.org/download/)
+- [Node.js y npm](https://nodejs.org/)
+- [PostgreSQL](https://www.postgresql.org/download/) (Opcional, pero recomendado ya que es la base de datos de producción)
+- [Git](https://git-scm.com/downloads)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Guía de Instalación para Desarrollo Local
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Sigue estos pasos cuidadosamente para poner en marcha el proyecto en tu máquina local.
 
-## Learning Laravel
+### 1. Clonar el Repositorio
+Abre tu terminal (o consola de Git Bash) y ejecuta el siguiente comando para descargar el código:
+```bash
+git clone https://github.com/danielagonzalez760-sudo/sistema_inventario_railway.git
+cd sistema_inventario_railway
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 2. Instalar Dependencias de PHP
+Instala las librerías necesarias de Laravel utilizando Composer:
+```bash
+composer install
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 3. Instalar Dependencias de Frontend (Vite, Tailwind)
+Instala los paquetes de Node:
+```bash
+npm install
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 4. Configurar el Archivo de Entorno (.env)
+Haz una copia del archivo de ejemplo para configurar tus variables de entorno locales:
+```bash
+cp .env.example .env
+```
+*(En Windows puedes usar `copy .env.example .env` o simplemente duplicar el archivo manualmente y renombrarlo a `.env`)*.
 
-## Laravel Sponsors
+### 5. Generar la Clave de la Aplicación
+Genera la llave de seguridad de Laravel:
+```bash
+php artisan key:generate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 6. Configurar la Base de Datos
+Abre el archivo `.env` en tu editor de código y busca la sección de base de datos. Configúrala con tus credenciales locales.
 
-### Premium Partners
+Si usas **PostgreSQL** (Recomendado):
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=nombre_de_tu_base_de_datos
+DB_USERNAME=tu_usuario_postgres
+DB_PASSWORD=tu_contraseña_postgres
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Si decides usar **MySQL** localmente para pruebas rápidas, cámbialo a:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nombre_de_tu_base_de_datos
+DB_USERNAME=root
+DB_PASSWORD=
+```
+*(Asegúrate de haber creado la base de datos vacía en tu gestor, como pgAdmin o phpMyAdmin, antes del siguiente paso).*
 
-## Contributing
+### 7. Ejecutar las Migraciones
+Crea las tablas en la base de datos:
+```bash
+php artisan migrate
+```
+*(Opcionalmente, si el proyecto tiene seeders con datos iniciales, puedes usar `php artisan migrate --seed`)*.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 8. Compilar los Estilos y Arrancar el Servidor
 
-## Code of Conduct
+Para trabajar en el proyecto, necesitas ejecutar **dos comandos** en terminales separadas.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**Terminal 1 (Para compilar Tailwind y Vite en tiempo real):**
+```bash
+npm run dev
+```
 
-## Security Vulnerabilities
+**Terminal 2 (Para arrancar el servidor de PHP/Laravel):**
+```bash
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 9. ¡Listo!
+Abre tu navegador web e ingresa a:
+👉 **[http://localhost:8000](http://localhost:8000)**
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Notas Adicionales para el Desarrollador
+- **Diseño (Tailwind):** Cada vez que hagas un cambio en los estilos o vistas Blade, asegúrate de tener `npm run dev` corriendo para que los cambios se reflejen de inmediato.
+- **Despliegue:** El proyecto está configurado con Docker y un `start.sh` para su despliegue automático en Railway. No debes modificar el `Dockerfile` a menos que sea estrictamente necesario para la infraestructura.
