@@ -71,12 +71,10 @@ class ReservaController extends Controller
             return redirect()->back()->with('error', 'Error al enviar correo al usuario: ' . $e->getMessage());
         }
 
-        // Notificar a todos los admins que hay una nueva reserva
+        // Notificar al correo central del laboratorio que hay una nueva reserva
         try {
-            $admins = User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->get();
-            foreach ($admins as $admin) {
-                $admin->notify(new ReservaNuevaAdmin($reserva));
-            }
+            \Illuminate\Support\Facades\Notification::route('mail', 'sislabpascualbravo@gmail.com')
+                ->notify(new ReservaNuevaAdmin($reserva));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error al enviar correo al admin: ' . $e->getMessage());
         }
@@ -132,12 +130,10 @@ class ReservaController extends Controller
             return redirect()->back()->with('error', 'Error al enviar correo al usuario: ' . $e->getMessage());
         }
 
-        // Notificar a todos los admins que hay una nueva reserva
+        // Notificar al correo central del laboratorio que hay una nueva reserva
         try {
-            $admins = User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->get();
-            foreach ($admins as $admin) {
-                $admin->notify(new ReservaNuevaAdmin($reserva));
-            }
+            \Illuminate\Support\Facades\Notification::route('mail', 'sislabpascualbravo@gmail.com')
+                ->notify(new ReservaNuevaAdmin($reserva));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error al enviar correo al admin: ' . $e->getMessage());
         }

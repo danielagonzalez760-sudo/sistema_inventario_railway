@@ -36,7 +36,7 @@ class AlertaController extends Controller
         ]);
 
         // Notificación siempre al mismo correo
-        Notification::route('mail', 'alertas.lab.pb@gmail.com')
+        Notification::route('mail', 'sislabpascualbravo@gmail.com')
             ->notify(new StockLowNotification($alerta->item->nombre, $alerta->cantidad));
 
         return redirect()->route('alertas.index')->with('success', '✅ Alerta creada y enviada al correo.');

@@ -223,11 +223,9 @@ class ItemController extends Controller
             'estado'   => 'pendiente',
         ]);
 
-        try {
-                $admins = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->get();
-                foreach ($admins as $admin) {
-                    $admin->notify(new \App\Notifications\StockLowNotification($item->nombre, $item->cantidad));
-                }
+            try {
+                \Illuminate\Support\Facades\Notification::route('mail', 'sislabpascualbravo@gmail.com')
+                    ->notify(new \App\Notifications\StockLowNotification($item->nombre, $item->cantidad));
             } catch (\Exception $e) {
                 session()->flash('error', 'Alerta guardada, pero falló el correo a admins: ' . $e->getMessage());
             }
@@ -245,11 +243,9 @@ class ItemController extends Controller
             ->where('estado', 'pendiente')
             ->update(['estado' => 'atendida']);
 
-        try {
-                $admins = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->get();
-                foreach ($admins as $admin) {
-                    $admin->notify(new \App\Notifications\StockReabastecido($item->nombre, $item->cantidad));
-                }
+            try {
+                \Illuminate\Support\Facades\Notification::route('mail', 'sislabpascualbravo@gmail.com')
+                    ->notify(new \App\Notifications\StockReabastecido($item->nombre, $item->cantidad));
             } catch (\Exception $e) {
                 session()->flash('error', 'Stock actualizado, pero falló el correo a admins: ' . $e->getMessage());
             }
