@@ -67,7 +67,9 @@ class ReservaController extends Controller
         // Notificar al usuario que su solicitud fue recibida
         try {
             $reserva->user->notify(new ReservaSolicitada($reserva));
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['mail' => 'Error al enviar correo al usuario: ' . $e->getMessage()]);
+        }
 
         // Notificar a todos los admins que hay una nueva reserva
         try {
@@ -75,7 +77,9 @@ class ReservaController extends Controller
             foreach ($admins as $admin) {
                 $admin->notify(new ReservaNuevaAdmin($reserva));
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['mail' => 'Error al enviar correo al admin: ' . $e->getMessage()]);
+        }
 
         return redirect()->back()->with('success', 'Tu solicitud de préstamo fue registrada y está pendiente de aprobación.');
     }
@@ -124,7 +128,9 @@ class ReservaController extends Controller
         // Notificar al usuario que su solicitud fue recibida
         try {
             $reserva->user->notify(new ReservaSolicitada($reserva));
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['mail' => 'Error al enviar correo al usuario: ' . $e->getMessage()]);
+        }
 
         // Notificar a todos los admins que hay una nueva reserva
         try {
@@ -132,7 +138,9 @@ class ReservaController extends Controller
             foreach ($admins as $admin) {
                 $admin->notify(new ReservaNuevaAdmin($reserva));
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['mail' => 'Error al enviar correo al admin: ' . $e->getMessage()]);
+        }
 
         return redirect()->back()->with('success', 'Tu solicitud de préstamo fue registrada y está pendiente de aprobación.');
     }
