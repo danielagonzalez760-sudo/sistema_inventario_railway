@@ -67,15 +67,15 @@ class ReservaController extends Controller
         // Notificar al usuario que su solicitud fue recibida
         try {
             $reserva->user->notify(new ReservaSolicitada($reserva));
-        } catch (\Exception $e) {
-            session()->flash('warning', 'Reserva creada, pero no se pudo notificar al estudiante por correo.');
+        } catch (\Throwable $e) {
+            session()->flash('warning', 'Reserva creada, pero no se pudo notificar al estudiante por correo: ' . $e->getMessage());
         }
 
         // Notificar al correo central del laboratorio que hay una nueva reserva
         try {
             \Illuminate\Support\Facades\Notification::route('mail', 'sislabpascualbravo@gmail.com')
                 ->notify(new ReservaNuevaAdmin($reserva));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Error al enviar correo al admin: ' . $e->getMessage());
         }
 
@@ -126,15 +126,15 @@ class ReservaController extends Controller
         // Notificar al usuario que su solicitud fue recibida
         try {
             $reserva->user->notify(new ReservaSolicitada($reserva));
-        } catch (\Exception $e) {
-            session()->flash('warning', 'Reserva creada, pero no se pudo notificar al docente por correo.');
+        } catch (\Throwable $e) {
+            session()->flash('warning', 'Reserva creada, pero no se pudo notificar al docente por correo: ' . $e->getMessage());
         }
 
         // Notificar al correo central del laboratorio que hay una nueva reserva
         try {
             \Illuminate\Support\Facades\Notification::route('mail', 'sislabpascualbravo@gmail.com')
                 ->notify(new ReservaNuevaAdmin($reserva));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Error al enviar correo al admin: ' . $e->getMessage());
         }
 
@@ -195,7 +195,9 @@ class ReservaController extends Controller
 
         try {
             $reserva->user->notify(new ReservaConfirmada($reserva));
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {
+            session()->flash('warning', 'Aprobada, pero el correo falló: ' . $e->getMessage());
+        }
 
         return redirect()->back()->with('success', '✅ Reserva marcada como prestada.');
     }
@@ -210,7 +212,9 @@ class ReservaController extends Controller
 
         try {
             $reserva->user->notify(new ReservaRechazada($reserva));
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {
+            session()->flash('warning', 'Rechazada, pero el correo falló: ' . $e->getMessage());
+        }
 
         return redirect()->back()->with('success', '❌ Reserva cancelada y stock restaurado.');
     }
@@ -258,7 +262,9 @@ class ReservaController extends Controller
 
         try {
             $reserva->user->notify(new ReservaDevuelta($reserva));
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {
+            session()->flash('warning', 'Devuelta, pero el correo falló: ' . $e->getMessage());
+        }
 
         return redirect()->back()->with('success', '✅ Reserva devuelta correctamente.');
     }
