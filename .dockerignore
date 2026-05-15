@@ -1,0 +1,16 @@
+.env
+.git
+.gitignore
+.gitattributes
+node_modules
+vendor
+/public/build
+/public/hot
+/storage/*.key
+/storage/logs/*.log
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/app/public/*
+docker-compose.yml
+railway.toml

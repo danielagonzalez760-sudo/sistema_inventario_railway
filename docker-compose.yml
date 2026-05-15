@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sistema_inventario_app
+    ports:
+      - "8000:80"
+    environment:
+      # Configuramos la conexión a la base de datos local del contenedor
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: sistema_inventario
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      # Forzamos entorno a producción para que use las vistas cacheadas y assets build
+      APP_ENV: production
+      APP_DEBUG: "true"
+      # Usa la clave de la aplicación desde tu .env o genera una si da error
+      APP_KEY: "base64:OuIKiUu0RyV6aFltJAK2Um61QY2qiCLFd4HJR/frLnI="
+    depends_on:
+      db_condition:
+        condition: service_healthy
+
+  db:
+    image: postgres:15
+    container_name: sistema_inventario_db
+    restart: always
+    environment:
+      POSTGRES_DB: sistema_inventario
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:
