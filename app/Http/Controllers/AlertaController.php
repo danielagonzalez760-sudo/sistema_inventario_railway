@@ -35,11 +35,14 @@ class AlertaController extends Controller
             'estado' => 'pendiente',
         ]);
 
-        // Notificación siempre al mismo correo
-        Notification::route('mail', 'sislabpascualbravo@gmail.com')
-            ->notify(new StockLowNotification($alerta->item->nombre, $alerta->cantidad));
-
-        return redirect()->route('alertas.index')->with('success', '✅ Alerta creada y enviada al correo.');
+        try {
+            // Notificación siempre al mismo correo
+            Notification::route('mail', 'sislabpascualbravo@gmail.com')
+                ->notify(new StockLowNotification($alerta->item->nombre, $alerta->cantidad));
+            return redirect()->route('alertas.index')->with('success', '✅ Alerta creada y enviada al correo.');
+        } catch (\Exception $e) {
+            return redirect()->route('alertas.index')->with('warning', '⚠️ Alerta creada, pero falló el envío del correo: ' . $e->getMessage());
+        }
     }
 
     //Cambiar el estado de una alerta a "atendida".
