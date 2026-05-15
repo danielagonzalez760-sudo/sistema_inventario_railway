@@ -45,3 +45,22 @@ services:
 
 volumes:
   db-data:
+
+  schemaspy:
+    image: schemaspy/schemaspy:latest
+    container_name: sistema_inventario_sqldoc
+    profiles:
+      - tools
+    volumes:
+      - ./public/sqldoc:/output
+    command: >
+      -t pgsql
+      -host db
+      -port 5432
+      -db sistema_inventario
+      -u postgres
+      -p password
+      -s public
+    depends_on:
+      db_condition:
+        condition: service_healthy

@@ -102,3 +102,34 @@ Abre tu navegador web e ingresa a:
 ## Notas Adicionales para el Desarrollador
 - **Diseño (Tailwind):** Cada vez que hagas un cambio en los estilos o vistas Blade, asegúrate de tener `npm run dev` corriendo para que los cambios se reflejen de inmediato.
 - **Despliegue:** El proyecto está configurado con Docker y un `start.sh` para su despliegue automático en Railway. No debes modificar el `Dockerfile` a menos que sea estrictamente necesario para la infraestructura.
+
+---
+
+## 📧 Configuración de Correos (Alertas)
+Para que el sistema de alertas por correo electrónico funcione localmente, te recomendamos usar **Mailtrap**.
+1. Crea una cuenta gratuita en [Mailtrap](https://mailtrap.io).
+2. Crea un "Inbox" en "Email Testing".
+3. Ve a tu archivo `.env` y reemplaza las variables `MAIL_*` con las credenciales SMTP que te proporciona Mailtrap:
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=tu_usuario_de_mailtrap
+MAIL_PASSWORD=tu_contraseña_de_mailtrap
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="admin@laboratorio.com"
+MAIL_FROM_NAME="Sistema de Inventario"
+```
+Una vez configurado, las alertas a los administradores (nuevo stock, stock bajo, nueva reserva) llegarán a la bandeja de pruebas de tu Mailtrap local.
+
+---
+
+## 🗄️ Documentación de Base de Datos (SQLDoc / SchemaSpy)
+Hemos integrado **SchemaSpy** vía Docker para generar diagramas automáticos de la base de datos PostgreSQL.
+Para generarlos:
+1. Asegúrate de tener los contenedores de Docker en ejecución (especialmente la base de datos `db`).
+2. En tu terminal (desde la raíz del proyecto) ejecuta el script de generación:
+```bash
+./docker/generate-sqldoc.sh
+```
+3. Una vez finalizado, puedes abrir el archivo `public/sqldoc/index.html` en tu navegador para ver la documentación interactiva de tus tablas, columnas y relaciones.
