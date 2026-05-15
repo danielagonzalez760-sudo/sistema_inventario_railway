@@ -138,8 +138,7 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::resource('users', UserController::class);
 
-    Route::get('/reservas', [ReservaController::class, 'index'])->name('reservas.index');
-    Route::resource('reservas', ReservaController::class);
+    Route::resource('reservas', ReservaController::class)->except(['store']);
 
 /* -------------------- REPORTES -------------------- */
 // Formulario de selección

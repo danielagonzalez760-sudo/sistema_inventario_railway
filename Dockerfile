@@ -25,7 +25,9 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
 
 
 # Asegurar que solo mpm_prefork esté activo y habilitar rewrite
-RUN a2dismod mpm_event mpm_worker || true && a2enmod mpm_prefork rewrite
+RUN a2dismod mpm_event mpm_worker || true && \
+    rm -f /etc/apache2/mods-enabled/mpm_event.conf && \
+    a2enmod mpm_prefork rewrite
 
 
 # Obtener Composer
