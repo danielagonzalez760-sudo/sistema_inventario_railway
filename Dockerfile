@@ -24,8 +24,9 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
     install-php-extensions pdo_pgsql mbstring exif pcntl bcmath gd
 
 
-# Habilitar el módulo rewrite de Apache (necesario para Laravel)
-RUN a2enmod rewrite
+# Asegurar que solo mpm_prefork esté activo y habilitar rewrite
+RUN a2dismod mpm_event mpm_worker || true && a2enmod mpm_prefork rewrite
+
 
 # Obtener Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
