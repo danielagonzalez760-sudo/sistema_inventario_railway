@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Confiar en el proxy de Railway para evitar errores de contenido mixto (HTTPS)
+        $middleware->trustProxies(at: '*');
+
         // 👇 Registramos alias de middlewares personalizados
         $middleware->alias([
             'isAdmin' => \App\Http\Middleware\IsAdmin::class,
