@@ -64,9 +64,9 @@ class ReservaController extends Controller
             'descripcion' => 'Préstamo por usuario ID ' . Auth::id(),
         ]);
 
-        // Notificar al usuario que su solicitud fue recibida
+        // Notificar al usuario que su solicitud fue recibida (DESACTIVADO TEMPORALMENTE POR RESTRICCIONES DE RESEND)
         try {
-            $reserva->user->notify(new ReservaSolicitada($reserva));
+            // $reserva->user->notify(new ReservaSolicitada($reserva));
         } catch (\Throwable $e) {
             session()->flash('warning', 'Reserva creada, pero no se pudo notificar al estudiante por correo: ' . $e->getMessage());
         }
@@ -123,9 +123,9 @@ class ReservaController extends Controller
             'descripcion' => 'Préstamo por usuario ID ' . Auth::id(),
         ]);
 
-        // Notificar al usuario que su solicitud fue recibida
+        // Notificar al usuario que su solicitud fue recibida (DESACTIVADO TEMPORALMENTE POR RESTRICCIONES DE RESEND)
         try {
-            $reserva->user->notify(new ReservaSolicitada($reserva));
+            // $reserva->user->notify(new ReservaSolicitada($reserva));
         } catch (\Throwable $e) {
             session()->flash('warning', 'Reserva creada, pero no se pudo notificar al docente por correo: ' . $e->getMessage());
         }
@@ -194,7 +194,7 @@ class ReservaController extends Controller
         $reserva->update(['estado' => 'prestado']);
 
         try {
-            $reserva->user->notify(new ReservaConfirmada($reserva));
+            // $reserva->user->notify(new ReservaConfirmada($reserva));
         } catch (\Throwable $e) {
             session()->flash('warning', 'Aprobada, pero el correo falló: ' . $e->getMessage());
         }
@@ -211,7 +211,7 @@ class ReservaController extends Controller
         $reserva->update(['estado' => 'cancelado']);
 
         try {
-            $reserva->user->notify(new ReservaRechazada($reserva));
+            // $reserva->user->notify(new ReservaRechazada($reserva));
         } catch (\Throwable $e) {
             session()->flash('warning', 'Rechazada, pero el correo falló: ' . $e->getMessage());
         }
@@ -261,7 +261,7 @@ class ReservaController extends Controller
         ]);
 
         try {
-            $reserva->user->notify(new ReservaDevuelta($reserva));
+            // $reserva->user->notify(new ReservaDevuelta($reserva));
         } catch (\Throwable $e) {
             session()->flash('warning', 'Devuelta, pero el correo falló: ' . $e->getMessage());
         }
