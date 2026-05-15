@@ -68,7 +68,7 @@ class ReservaController extends Controller
         try {
             $reserva->user->notify(new ReservaSolicitada($reserva));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error al enviar correo al usuario: ' . $e->getMessage());
+            session()->flash('warning', 'Reserva creada, pero no se pudo notificar al estudiante por correo.');
         }
 
         // Notificar al correo central del laboratorio que hay una nueva reserva
@@ -127,7 +127,7 @@ class ReservaController extends Controller
         try {
             $reserva->user->notify(new ReservaSolicitada($reserva));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error al enviar correo al usuario: ' . $e->getMessage());
+            session()->flash('warning', 'Reserva creada, pero no se pudo notificar al docente por correo.');
         }
 
         // Notificar al correo central del laboratorio que hay una nueva reserva
